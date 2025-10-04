@@ -1,0 +1,33 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Dating Site</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+  <nav>
+    <a href="/">Home</a>
+    {% if user.is_authenticated %}
+      <span class="hint">Hello, {{ user.username }}</span>
+      <a href="{% url 'logout' %}">Logout</a>
+    {% else %}
+      <a href="{% url 'login' %}">Login</a>
+      <a href="{% url 'signup' %}">Sign up</a>
+    {% endif %}
+    <a href="/admin/">Admin</a>
+  </nav>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="msg {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

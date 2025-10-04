@@ -1,0 +1,31 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.log
+
+# Django database
+db.sqlite3
+
+# Uploaded media
+/media/
+
+# Environment
+venv/
+.venv/
+env/
+.env
+*.env
+
+# IDE / Editor
+.vscode/
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Static build
+/staticfiles/
