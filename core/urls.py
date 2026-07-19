@@ -15,6 +15,9 @@ urlpatterns = [
     
     # Profile URLs
     path('profile/', views.profile_view, name='profile'),
+
+    path('confirm-meet/<int:safemeet_id>/', views.confirm_safe_meet_view, name='confirm_safe_meet'),
+
     
     # Messaging URLs
     path('messages/', views.messages_view, name='messages'),
