@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-md text-center mt-10">
+    <h2 class="text-3xl font-bold mb-4 text-pink-600">Go Premium</h2>
+    <p class="text-gray-600 mb-6">Unlock messaging and connect with your matches!</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="w-full bg-yellow-500 text-white py-3 rounded-full font-bold text-lg hover:bg-yellow-600">
+            Upgrade Now (Free for Beta)
+        </button>
+    </form>
+</div>
+{% endblock %}

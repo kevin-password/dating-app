@@ -1,0 +1,287 @@
+<!-- feed.html - COMPLETE ENHANCED VERSION -->
+{% extends 'base.html' %}
+{% block content %}
+<!-- Beautiful Gradient Background -->
+<div class="min-h-screen flex flex-col items-center bg-gradient-to-br from-rose-100 via-pink-50 to-purple-100 px-4 py-6 space-y-8">
+    
+    {% if next_profile %}
+    <!-- Glassmorphism Card -->
+    <div class="w-full max-w-lg bg-white/80 backdrop-blur-xl border border-white/60 shadow-2xl rounded-3xl p-6 md:p-8 relative overflow-hidden">
+        
+        <!-- Decorative background blobs -->
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-pink-400 rounded-full mix-blend-multiply filter blur-2xl opacity-20 animate-pulse z-0"></div>
+        <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-purple-400 rounded-full mix-blend-multiply filter blur-2xl opacity-20 animate-pulse z-0"></div>
+
+        <!-- Header -->
+        <div class="relative z-10 text-center mb-6">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/30 mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+            </div>
+            <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">Discover</h2>
+            
+            <!-- NEW: Compatibility Score -->
+            {% if next_profile.interests and user.profile.interests %}
+            <div class="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-100 to-purple-100 rounded-full">
+                <span class="text-sm font-bold text-pink-600">
+                    {% with score=user.profile.get_compatibility_score %}
+                        {{ score }}% Match
+                    {% endwith %}
+                </span>
+                <div class="w-20 h-2 bg-white rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-pink-500 to-purple-600 rounded-full" 
+                         style="width: {% with score=user.profile.get_compatibility_score %}{{ score }}{% endwith %}%"></div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Profile Content -->
+        <div class="relative z-10 space-y-5">
+            
+            <!-- Profile Image with BLUR LOGIC -->
+            <div class="relative h-[400px] rounded-2xl overflow-hidden shadow-lg bg-gray-100">
+                {% if next_profile.photos.first and next_profile.photos.first.image %}
+                    <!-- Image: Blurred if not matched, clear if matched -->
+                    <img src="{{ next_profile.photos.first.image.url }}" 
+                         alt="{{ next_profile.display_name }}" 
+                         class="w-full h-full object-cover transition-all duration-500 {% if not is_matched %}blur-xl scale-110{% endif %}">
+                    
+                    <!-- Blur Overlay (Only shows if NOT matched) -->
+                    {% if not is_matched %}
+                    <div class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px]">
+                        <div class="bg-white/90 p-4 rounded-full shadow-xl mb-3 animate-bounce">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                        </div>
+                        <p class="text-white font-bold text-lg drop-shadow-md">Knock to unblur photo</p>
+                        <p class="text-white/80 text-sm drop-shadow-md">Match to see clearly</p>
+                    </div>
+                    {% endif %}
+
+                {% else %}
+                    <!-- Fallback if no photo -->
+                    <div class="w-full h-full bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                {% endif %}
+
+                <!-- Availability Badge (Top Right) -->
+                {% if next_profile.is_available %}
+                <div class="absolute top-4 right-4 bg-green-500/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 border border-green-400/50 z-20">
+                    <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+                    Available Now
+                </div>
+                {% else %}
+                <div class="absolute top-4 right-4 bg-gray-500/80 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 z-20">
+                    <span class="w-2 h-2 bg-gray-300 rounded-full"></span>
+                    Browsing
+                </div>
+                {% endif %}
+                
+                <!-- NEW: Verification Badge -->
+                {% if next_profile.verification_level != 'unverified' %}
+                <div class="absolute top-4 left-4 bg-blue-500/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 border border-blue-400/50 z-20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    {{ next_profile.get_verification_level_display }}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Name, Age & Location -->
+            <div>
+                <div class="flex items-baseline gap-2">
+                    <h3 class="text-3xl font-extrabold text-gray-900">{{ next_profile.display_name }}</h3>
+                    <span class="text-2xl font-light text-gray-500">{{ next_profile.age }}</span>
+                </div>
+                <p class="text-gray-500 font-medium flex items-center gap-1.5 mt-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    {{ next_profile.city|default:"Somewhere nearby" }}
+                </p>
+                
+                <!-- NEW: Safety Score Indicator -->
+                <div class="mt-2 flex items-center gap-2">
+                    <span class="text-xs text-gray-500">Safety:</span>
+                    <div class="flex items-center gap-1">
+                        <div class="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full {% if next_profile.safety_score >= 80 %}bg-green-500{% elif next_profile.safety_score >= 50 %}bg-yellow-500{% else %}bg-red-500{% endif %}" 
+                                 style="width: {{ next_profile.safety_score }}%"></div>
+                        </div>
+                        <span class="text-xs font-bold {% if next_profile.safety_score >= 80 %}text-green-600{% elif next_profile.safety_score >= 50 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                            {{ next_profile.safety_score }}/100
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bio -->
+            {% if next_profile.bio %}
+            <div class="p-4 bg-pink-50/60 border border-pink-100 rounded-xl">
+                <p class="text-gray-700 text-sm leading-relaxed">
+                    {{ next_profile.bio }}
+                </p>
+            </div>
+            {% endif %}
+            
+            <!-- NEW: Interests Tags -->
+            {% if next_profile.interests %}
+            <div>
+                <h4 class="text-sm font-semibold text-gray-700 mb-2">Interests</h4>
+                <div class="flex flex-wrap gap-2">
+                    {% for interest in next_profile.interests|slice:":8" %}
+                    <span class="px-3 py-1.5 bg-gradient-to-r from-pink-100 to-purple-100 text-pink-700 text-xs font-medium rounded-full border border-pink-200">
+                        {{ interest }}
+                    </span>
+                    {% endfor %}
+                    {% if next_profile.interests|length > 8 %}
+                    <span class="px-3 py-1.5 bg-gray-100 text-gray-500 text-xs font-medium rounded-full border border-gray-200">
+                        +{{ next_profile.interests|length|add:"-8" }} more
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- NEW: Mutual Interests Highlight -->
+            {% if next_profile.interests and user.profile.interests %}
+            {% with mutual=user.profile.get_mutual_interests %}
+            {% if mutual %}
+            <div class="p-4 bg-green-50/60 border border-green-200 rounded-xl">
+                <div class="flex items-center gap-2 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span class="text-sm font-semibold text-green-700">You both like</span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    {% for interest in mutual|slice:":5" %}
+                    <span class="px-3 py-1.5 bg-white text-green-600 text-xs font-medium rounded-full border border-green-300">
+                        {{ interest }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            {% endwith %}
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div class="flex gap-4 pt-2">
+                <!-- Pass Button -->
+                <a href="{% url 'swipe_action' next_profile.id 'pass' %}" 
+                   class="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl bg-white border-2 border-red-200 text-red-500 font-bold shadow-sm hover:bg-red-50 hover:border-red-300 hover:shadow-md transition-all duration-200 active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Pass
+                </a>
+
+                <!-- Knock Button -->
+                <a href="{% url 'swipe_action' next_profile.id 'like' %}" 
+                   class="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold shadow-lg shadow-pink-500/30 hover:shadow-xl hover:from-pink-600 hover:to-purple-700 transition-all duration-200 active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                    </svg>
+                    Knock
+                </a>
+            </div>
+            
+            <!-- NEW: Report/Block Quick Actions -->
+            <div class="flex justify-center gap-4 pt-1">
+                <a href="{% url 'report_user' next_profile.user.id %}" class="text-xs text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                    </svg>
+                    Report
+                </a>
+                <span class="text-gray-300">|</span>
+                <a href="{% url 'block_user' next_profile.user.id %}" class="text-xs text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                    </svg>
+                    Block
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Beautiful Empty State -->
+    <div class="w-full max-w-lg relative z-10">
+        <div class="bg-white/80 backdrop-blur-xl border border-white/60 shadow-2xl rounded-3xl p-10 text-center">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-pink-100 to-purple-100 text-pink-500 mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+            <h2 class="text-2xl font-extrabold text-gray-800">No more profiles nearby!</h2>
+            <p class="text-gray-500 mt-3 text-sm leading-relaxed">
+                You've seen everyone in your area. <br>Check back later or expand your search preferences.
+            </p>
+            <div class="flex gap-3 justify-center mt-8">
+                <a href="{% url 'profile' %}" class="px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold rounded-full shadow-lg shadow-pink-500/30 hover:shadow-xl transition-all hover:-translate-y-0.5">
+                    Edit Preferences
+                </a>
+                <a href="{% url 'home' %}" class="px-6 py-3 bg-white border-2 border-pink-200 text-pink-600 font-bold rounded-full hover:bg-pink-50 transition-all hover:-translate-y-0.5">
+                    Refresh
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- NEW: Discover Suggestions Section -->
+    {% if discover_suggestions %}
+    <div class="w-full max-w-lg">
+        <div class="bg-white/60 backdrop-blur-sm border border-white/60 shadow-lg rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-gray-800">✨ Discover New People</h3>
+                <span class="text-xs text-gray-500 bg-pink-100 px-3 py-1 rounded-full">Suggested</span>
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {% for suggestion in discover_suggestions %}
+                <a href="{% url 'swipe_action' suggestion.id 'like' %}" class="group">
+                    <div class="relative aspect-square rounded-xl overflow-hidden bg-gray-200 shadow-md group-hover:shadow-lg transition-all group-hover:scale-105">
+                        {% if suggestion.photos.first and suggestion.photos.first.image %}
+                        <img src="{{ suggestion.photos.first.image.url }}" alt="{{ suggestion.display_name }}" 
+                             class="w-full h-full object-cover">
+                        {% else %}
+                        <div class="w-full h-full bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Quick Knock Overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+                            <div class="w-full text-center">
+                                <span class="text-white text-xs font-bold bg-pink-500 px-3 py-1.5 rounded-full inline-flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                    </svg>
+                                    Knock
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-sm font-medium text-gray-700 mt-2 text-center">{{ suggestion.display_name }}</p>
+                    <p class="text-xs text-gray-500 text-center">{{ suggestion.age }} • {{ suggestion.city|default:"Nearby" }}</p>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,1 @@
+web: gunicorn dating_site.wsgi --log-file -

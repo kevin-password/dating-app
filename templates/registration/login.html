@@ -1,33 +1,55 @@
-{% extends "base.html" %}
-{% load static %}
+{% extends 'base.html' %}
 {% block content %}
-  <div class="card">
-    <h2>Login</h2>
-    <p class="hint">Use your <strong>username</strong> (not email) unless you customized authentication.
-      New here? <a href="{% url 'signup' %}">Sign up</a>.
-    </p>
+<div class="min-h-[80vh] flex items-center justify-center px-4">
+    <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-pink-100">
+        
+        <!-- Header with Icon -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-pink-100 text-pink-600 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-800">Welcome Back</h2>
+            <p class="text-gray-500 mt-2">Log in to see your new matches</p>
+        </div>
 
-    <form id="loginForm" method="post" novalidate>
-      {% csrf_token %}
-      {{ form.non_field_errors }}
+        <!-- Error Messages -->
+        {% if form.errors %}
+        <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-r-lg" role="alert">
+            <p class="font-bold">Login Failed</p>
+            <p class="text-sm">Please check your username and password and try again.</p>
+        </div>
+        {% endif %}
 
-      <label for="id_username">Username</label>
-      <input id="id_username" name="username" type="text" required autocomplete="username" placeholder="your-username" />
+        <!-- Login Form -->
+        <form method="POST" class="space-y-5">
+            {% csrf_token %}
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                {{ form.username }}
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                {{ form.password }}
+            </div>
 
-      <label for="id_password">Password</label>
-      <div class="input-inline">
-        <input id="id_password" name="password" type="password" required autocomplete="current-password" placeholder="••••••••" />
-        <button type="button" id="togglePwd" class="btn-ghost">Show</button>
-      </div>
+            <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 rounded-full font-bold text-lg shadow-lg hover:shadow-xl hover:from-pink-600 hover:to-rose-600 transition-all duration-200 transform hover:-translate-y-0.5">
+                Log In
+            </button>
+        </form>
 
-      <small class="hint" id="emailHint" style="display:none;margin-top:6px">
-        It looks like you entered an email. Default login uses <b>username</b>.
-        If you haven't registered, please <a href="{% url 'signup' %}">Sign up</a>.
-      </small>
-
-      <button id="submitBtn" type="submit" disabled>Login</button>
-    </form>
-  </div>
-
-  <script src="{% static 'js/login.js' %}"></script>
+        <!-- Footer Link -->
+        <div class="mt-8 text-center border-t border-gray-100 pt-6">
+            <p class="text-sm text-gray-600">
+                Don't have an account? 
+                <a href="{% url 'register' %}" class="font-semibold text-pink-600 hover:text-pink-700 hover:underline transition">
+                    Sign up for free
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -1,31 +1,13 @@
-# Python cache
+# .gitignore
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
+*.sqlite3
 *.log
-
-# Django database
-db.sqlite3
-
-# Uploaded media
-/media/
-
-# Environment
-venv/
-.venv/
-env/
 .env
-*.env
-
-# IDE / Editor
-.vscode/
-.idea/
-*.iml
-
-# OS files
+.venv/
+venv/
+staticfiles/
+media/
+*.pyc
 .DS_Store
-Thumbs.db
-
-# Static build
-/staticfiles/
+.vscode/

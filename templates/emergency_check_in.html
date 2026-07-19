@@ -1,0 +1,224 @@
+<!-- emergency_check_in.html - EMERGENCY CHECK-IN -->
+{% extends 'base.html' %}
+{% block title %}Emergency Check-In - DatingApp{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-rose-100 via-pink-50 to-purple-100 py-8 px-4">
+    <div class="max-w-lg mx-auto space-y-6">
+        
+        <!-- Header with Status -->
+        <div class="text-center mb-8">
+            {% if safemeet.checked_in %}
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/30 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-extrabold text-gray-900">Check-In Complete ✅</h1>
+                <p class="text-gray-500 mt-2">You've confirmed your safety. Thank you!</p>
+            {% elif is_overdue %}
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-orange-600 text-white shadow-lg shadow-red-500/30 mb-4 animate-pulse">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-extrabold text-red-600">⚠️ Check-In Overdue!</h1>
+                <p class="text-gray-600 mt-2">Your safety check-in was expected by {{ safemeet.check_in_due|time:"g:i A" }}</p>
+            {% else %}
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-extrabold text-gray-900">Safety Check-In</h1>
+                <p class="text-gray-500 mt-2">Confirm you're safe after your meeting</p>
+            {% endif %}
+        </div>
+
+        <!-- Meeting Details Card -->
+        <div class="bg-white/80 backdrop-blur-xl border border-white/60 shadow-xl rounded-2xl p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Meeting Information
+            </h2>
+            
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <span class="text-sm text-gray-600">Meeting With</span>
+                    <span class="text-sm font-bold text-gray-800">
+                        {% if safemeet.from_user == request.user %}
+                            {{ safemeet.to_user.profile.display_name }}
+                        {% else %}
+                            {{ safemeet.from_user.profile.display_name }}
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <span class="text-sm text-gray-600">📍 Location</span>
+                    <span class="text-sm font-bold text-gray-800">{{ safemeet.location }}</span>
+                </div>
+                
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <span class="text-sm text-gray-600">🕐 Meeting Time</span>
+                    <span class="text-sm font-bold text-gray-800">{{ safemeet.meeting_time|date:"F j, Y" }} at {{ safemeet.meeting_time|time:"g:i A" }}</span>
+                </div>
+                
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <span class="text-sm text-gray-600">⏱️ Duration</span>
+                    <span class="text-sm font-bold text-gray-800">{{ safemeet.expected_duration }} hour{{ safemeet.expected_duration|pluralize }}</span>
+                </div>
+                
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <span class="text-sm text-gray-600">⏰ Check-In Due</span>
+                    <span class="text-sm font-bold {% if is_overdue %}text-red-600{% else %}text-gray-800{% endif %}">
+                        {{ safemeet.check_in_due|time:"g:i A" }}
+                        {% if is_overdue %}
+                            <span class="text-xs text-red-500 ml-1">(Overdue)</span>
+                        {% endif %}
+                    </span>
+                </div>
+                
+                {% if safemeet.emergency_contact_name %}
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <span class="text-sm text-gray-600">👤 Emergency Contact</span>
+                    <span class="text-sm font-bold text-gray-800">{{ safemeet.emergency_contact_name }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <span class="text-sm text-gray-600">Status</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold 
+                        {% if safemeet.checked_in %}bg-green-100 text-green-700
+                        {% elif safemeet.emergency_triggered %}bg-red-100 text-red-700
+                        {% else %}bg-yellow-100 text-yellow-700{% endif %}">
+                        {{ safemeet.get_status_display }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Check-In Actions -->
+        {% if not safemeet.checked_in %}
+        <div class="bg-white/80 backdrop-blur-xl border border-white/60 shadow-xl rounded-2xl p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">
+                {% if is_overdue %}
+                    Are you okay?
+                {% else %}
+                    Confirm Your Safety
+                {% endif %}
+            </h2>
+            
+            <div class="space-y-3">
+                <!-- Safe Check-In Button -->
+                <form method="POST" class="block">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="check_in">
+                    <button type="submit" 
+                            class="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-2xl shadow-lg shadow-green-500/30 hover:shadow-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200 active:scale-95 flex items-center justify-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        ✅ I'm Safe - Check In
+                    </button>
+                </form>
+
+                <!-- Emergency Button -->
+                <form method="POST" class="block">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="emergency">
+                    <button type="submit" 
+                            class="w-full py-4 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold rounded-2xl shadow-lg shadow-red-500/30 hover:shadow-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 active:scale-95 flex items-center justify-center gap-3"
+                            onclick="return confirm('⚠️ Are you sure you want to trigger an emergency alert? This will notify your emergency contact.')">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                        🚨 Emergency - Send Alert
+                    </button>
+                </form>
+            </div>
+            
+            {% if safemeet.emergency_contact_phone %}
+            <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                <p class="text-xs text-yellow-800 text-center">
+                    <strong>Emergency contact will be notified:</strong><br>
+                    {{ safemeet.emergency_contact_name|default:"Your contact" }} at {{ safemeet.emergency_contact_phone }}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <!-- Already Checked In -->
+        <div class="bg-white/80 backdrop-blur-xl border border-white/60 shadow-xl rounded-2xl p-6 text-center">
+            <div class="text-6xl mb-4">✅</div>
+            <h2 class="text-xl font-bold text-gray-800 mb-2">You're All Set!</h2>
+            <p class="text-gray-600 text-sm mb-4">
+                {% if safemeet.emergency_triggered %}
+                    Emergency services have been alerted. Stay calm and help is on the way.
+                {% else %}
+                    Your safety has been confirmed. Your emergency contact has been notified that you're safe.
+                {% endif %}
+            </p>
+            <div class="text-xs text-gray-500">
+                Check-in completed at: {{ safemeet.checked_in_at|default:safemeet.updated_at|time:"g:i A" }}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Safety Resources -->
+        <div class="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-2xl p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                Emergency Resources
+            </h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                <div class="bg-white/80 rounded-xl p-3 text-center">
+                    <p class="text-xs text-gray-600 mb-1">Police / Ambulance</p>
+                    <p class="text-2xl font-black text-red-600">911</p>
+                </div>
+                <div class="bg-white/80 rounded-xl p-3 text-center">
+                    <p class="text-xs text-gray-600 mb-1">Crisis Hotline</p>
+                    <p class="text-2xl font-black text-red-600">988</p>
+                </div>
+                <div class="bg-white/80 rounded-xl p-3 text-center">
+                    <p class="text-xs text-gray-600 mb-1">Text Crisis Line</p>
+                    <p class="text-lg font-black text-red-600">HOME to 741741</p>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <p class="text-xs text-gray-600 mb-2">If you're in immediate danger:</p>
+                <ol class="text-xs text-gray-700 text-left max-w-sm mx-auto space-y-1 list-decimal list-inside">
+                    <li>Call 911 immediately</li>
+                    <li>Move to a safe public location</li>
+                    <li>Contact a trusted friend or family member</li>
+                    <li>Use the emergency button above to alert your contact</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="flex gap-3 justify-center">
+            <a href="{% url 'safety_center' %}" 
+               class="px-4 py-2 bg-white/80 backdrop-blur-xl border border-white/60 shadow-lg rounded-full text-sm text-gray-600 hover:text-pink-600 transition-colors flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                Safety Center
+            </a>
+            <a href="{% url 'home' %}" 
+               class="px-4 py-2 bg-white/80 backdrop-blur-xl border border-white/60 shadow-lg rounded-full text-sm text-gray-600 hover:text-pink-600 transition-colors flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

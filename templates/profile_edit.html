@@ -1,0 +1,424 @@
+<!-- profile_edit.html - BEAUTIFUL REDESIGNED VERSION -->
+{% extends 'base.html' %}
+{% block title %}{{ profile.display_name }} - Edit Profile{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-rose-100 via-pink-50 to-purple-100 py-8 px-4">
+    <div class="max-w-2xl mx-auto space-y-6">
+        
+        <!-- Profile Header Card -->
+        <div class="bg-white/80 backdrop-blur-xl border border-white/60 shadow-xl rounded-3xl overflow-hidden">
+            <!-- Cover Image Area -->
+            <div class="relative h-56 sm:h-72 bg-gradient-to-br from-pink-400 via-purple-400 to-indigo-500">
+                {% if profile.photos.first and profile.photos.first.image %}
+                    <img src="{{ profile.photos.first.image.url }}" class="w-full h-full object-cover" alt="{{ profile.display_name }}">
+                {% else %}
+                    <div class="w-full h-full flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="w-28 h-28 sm:w-36 sm:h-36 mx-auto rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-6xl sm:text-7xl font-black border-4 border-white/30 shadow-2xl">
+                                {{ profile.display_name|first|upper }}
+                            </div>
+                            <p class="text-white/70 text-sm mt-3 font-medium">Add a photo to stand out</p>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <!-- Gradient Overlay -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                
+                <!-- Profile Info Overlay -->
+                <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                    <div class="flex items-end justify-between">
+                        <div>
+                            <h1 class="text-3xl sm:text-4xl font-bold mb-1 drop-shadow-lg">{{ profile.display_name }}</h1>
+                            <div class="flex items-center gap-2 text-white/90">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <span class="text-sm">{{ profile.city|default:"Add your location" }}</span>
+                                {% if profile.country %}
+                                <span class="text-white/50">•</span>
+                                <span class="text-sm">{{ profile.country }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Availability Toggle -->
+                        <form method="POST" class="flex-shrink-0">
+                            {% csrf_token %}
+                            <input type="hidden" name="toggle_availability" value="1">
+                            <button type="submit" 
+                                    class="px-5 py-2.5 rounded-full font-bold text-sm transition-all transform hover:scale-105 active:scale-95
+                                    {% if profile.is_available %}
+                                        bg-green-500 text-white shadow-lg shadow-green-500/30
+                                    {% else %}
+                                        bg-white/20 text-white backdrop-blur-sm border-2 border-white/40 hover:bg-white/30
+                                    {% endif %}">
+                                {% if profile.is_available %}
+                                    <span class="flex items-center gap-1.5">
+                                        <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+                                        Available Now
+                                    </span>
+                                {% else %}
+                                    <span class="flex items-center gap-1.5">
+                                        <span class="w-2 h-2 bg-gray-300 rounded-full"></span>
+                                        Hidden
+                                    </span>
+                                {% endif %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Verification Badge -->
+                {% if profile.verification_level != 'unverified' %}
+                <div class="absolute top-4 right-4 bg-blue-500/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg border border-blue-400/50">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    {{ profile.get_verification_level_display }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-4 gap-4 p-6 border-t border-gray-100">
+                <div class="text-center">
+                    <div class="text-2xl font-black text-pink-500">{{ stats.likes_received|default:"0" }}</div>
+                    <div class="text-xs text-gray-500 font-medium">Likes</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-black text-purple-500">{{ stats.total_matches|default:"0" }}</div>
+                    <div class="text-xs text-gray-500 font-medium">Matches</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-black text-indigo-500">{{ stats.messages_sent|default:"0" }}</div>
+                    <div class="text-xs text-gray-500 font-medium">Messages</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-black text-rose-500">{{ stats.profile_completion|default:"0" }}%</div>
+                    <div class="text-xs text-gray-500 font-medium">Complete</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Safety Score Card -->
+        <div class="bg-white/80 backdrop-blur-xl border border-white/60 shadow-lg rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    Safety Score
+                </h3>
+                <span class="text-sm font-bold {% if profile.safety_score >= 80 %}text-green-600{% elif profile.safety_score >= 50 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                    {{ profile.safety_score }}/100
+                </span>
+            </div>
+            <div class="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-500 {% if profile.safety_score >= 80 %}bg-green-500{% elif profile.safety_score >= 50 %}bg-yellow-500{% else %}bg-red-500{% endif %}" 
+                     style="width: {{ profile.safety_score }}%"></div>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">Keep your profile authentic and respectful to maintain a high safety score.</p>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- BEAUTIFUL PHOTO UPLOAD SECTION -->
+        <!-- ============================================================ -->
+        <div class="bg-white/80 backdrop-blur-xl border border-white/60 shadow-xl rounded-3xl p-6 sm:p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+                <span class="text-3xl">📸</span> Photos
+            </h2>
+            <p class="text-sm text-gray-500 mb-6">Add up to 6 photos. Profiles with photos get 10x more matches!</p>
+            
+            <form method="POST" enctype="multipart/form-data" class="space-y-4">
+                {% csrf_token %}
+                
+                <!-- Photo Grid -->
+                <div class="grid grid-cols-3 gap-3">
+                    {% for photo in profile.photos.all %}
+                    <div class="relative aspect-square rounded-2xl overflow-hidden bg-gray-100 shadow-md group">
+                        {% if photo.image %}
+                            <img src="{{ photo.image.url }}" alt="Photo {{ forloop.counter }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-pink-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Hover Overlay -->
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                            {% if photo.is_main %}
+                                <span class="bg-pink-500 text-white text-xs font-bold px-3 py-1.5 rounded-full">Main Photo</span>
+                            {% else %}
+                                <button type="button" class="bg-white text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full hover:bg-pink-50 transition-colors">
+                                    Set as Main
+                                </button>
+                            {% endif %}
+                            <button type="button" class="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-red-600 transition-colors">
+                                Delete
+                            </button>
+                        </div>
+                        
+                        <!-- Photo Number -->
+                        <div class="absolute top-2 left-2 bg-black/50 backdrop-blur-sm text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
+                            {{ forloop.counter }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <!-- Add Photo Button -->
+                    {% if profile.photos.count < 6 %}
+                    <label class="aspect-square rounded-2xl border-3 border-dashed border-pink-300 bg-pink-50/50 hover:bg-pink-100/50 hover:border-pink-400 cursor-pointer transition-all flex flex-col items-center justify-center gap-2 group shadow-sm">
+                        <div class="w-12 h-12 rounded-full bg-pink-100 group-hover:bg-pink-200 flex items-center justify-center transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                        </div>
+                        <span class="text-xs font-bold text-pink-600">Add Photo</span>
+                        <input type="file" name="photo" accept="image/*" class="hidden" onchange="this.form.submit()">
+                    </label>
+                    {% endif %}
+                </div>
+                
+                {% if profile.photos.count < 6 %}
+                <p class="text-xs text-gray-400 text-center">{{ profile.photos.count }}/6 photos used • Tap + to upload</p>
+                {% else %}
+                <p class="text-xs text-gray-400 text-center">✅ Maximum photos reached</p>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Edit Profile Form -->
+        <div class="bg-white/80 backdrop-blur-xl border border-white/60 shadow-xl rounded-3xl p-6 sm:p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <span class="text-3xl">✏️</span> Edit Profile
+            </h2>
+            
+            <form method="POST" enctype="multipart/form-data" class="space-y-5">
+                {% csrf_token %}
+                
+                <!-- Display Name -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Display Name</label>
+                    {{ form.display_name }}
+                    {% if form.display_name.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.display_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Gender -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Gender</label>
+                    {{ form.gender }}
+                    {% if form.gender.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.gender.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Birth Date -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Birth Date</label>
+                    {{ form.birth_date }}
+                    {% if form.birth_date.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.birth_date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Location -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">City</label>
+                        {{ form.city }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Country</label>
+                        {{ form.country }}
+                    </div>
+                </div>
+
+                <!-- Detect Location Button -->
+                <button type="button" onclick="getLocation()" 
+                        class="w-full py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-600 text-sm font-bold rounded-xl border border-blue-200 transition-colors flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    📍 Detect My Location
+                </button>
+                <p id="location-status" class="text-xs text-gray-500 text-center -mt-2"></p>
+
+                <!-- Bio -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Bio</label>
+                    {{ form.bio }}
+                    <p class="text-xs text-gray-500 mt-1">Maximum 500 characters</p>
+                    {% if form.bio.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.bio.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Interests -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Interests
+                        <span class="text-gray-400 font-normal">(comma separated)</span>
+                    </label>
+                    {{ form.interests_input }}
+                    <p class="text-xs text-gray-500 mt-1">Example: hiking, coffee, movies, travel, photography</p>
+                    {% if form.interests_input.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.interests_input.errors.0 }}</p>
+                    {% endif %}
+                    
+                    {% if profile.interests %}
+                    <div class="flex flex-wrap gap-2 mt-3">
+                        {% for interest in profile.interests %}
+                        <span class="px-3 py-1.5 bg-pink-100 text-pink-700 text-xs font-medium rounded-full border border-pink-200 hover:bg-pink-200 cursor-default transition-colors">
+                            {{ interest }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Privacy Settings -->
+                <div class="border-t border-gray-200 pt-5">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <span class="text-2xl">🔒</span> Privacy Settings
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                            <div>
+                                <label class="text-sm font-semibold text-gray-700">Show Online Status</label>
+                                <p class="text-xs text-gray-500">Let others see when you're online</p>
+                            </div>
+                            {{ form.show_online_status }}
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                            <div>
+                                <label class="text-sm font-semibold text-gray-700">Show Distance</label>
+                                <p class="text-xs text-gray-500">Display your approximate distance</p>
+                            </div>
+                            {{ form.show_distance }}
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                            <div>
+                                <label class="text-sm font-semibold text-gray-700">Incognito Mode</label>
+                                <p class="text-xs text-gray-500">Only appear to people you've liked first</p>
+                            </div>
+                            {{ form.incognito_mode }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-4">
+                    <button type="submit" 
+                            class="w-full py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold rounded-2xl shadow-lg shadow-pink-500/30 hover:shadow-xl hover:from-pink-600 hover:to-purple-700 transition-all duration-200 active:scale-95 text-lg">
+                        💾 Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Verification Section -->
+        {% if profile.verification_level == 'unverified' %}
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-2xl p-6">
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-800">Get Verified 🏅</h3>
+                    <p class="text-sm text-gray-600 mt-1">Verified profiles get more matches and appear more trustworthy.</p>
+                    <button class="mt-3 px-5 py-2.5 bg-blue-500 text-white text-sm font-bold rounded-full hover:bg-blue-600 transition-colors shadow-md">
+                        Verify My Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Quick Links -->
+        <div class="grid grid-cols-2 gap-4">
+            <a href="{% url 'safety_center' %}" 
+               class="bg-white/80 backdrop-blur-xl border border-white/60 shadow-lg rounded-2xl p-4 flex items-center gap-3 hover:shadow-xl transition-all group">
+                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-gray-700">Safety Center</p>
+                    <p class="text-xs text-gray-500">Manage your safety</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'home' %}" 
+               class="bg-white/80 backdrop-blur-xl border border-white/60 shadow-lg rounded-2xl p-4 flex items-center gap-3 hover:shadow-xl transition-all group">
+                <div class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center group-hover:bg-pink-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-gray-700">Discover</p>
+                    <p class="text-xs text-gray-500">Find new people</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Geolocation Script -->
+<script>
+function getLocation() {
+    if ("geolocation" in navigator) {
+        document.getElementById('location-status').textContent = '📍 Detecting location...';
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                fetch('/api/update-location/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.city) {
+                        document.getElementById('location-status').textContent = '✅ Location set to: ' + data.city + ', ' + data.country;
+                        location.reload();
+                    } else {
+                        document.getElementById('location-status').textContent = '✅ Coordinates saved!';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('location-status').textContent = '❌ Error updating location';
+                });
+            },
+            function(error) {
+                document.getElementById('location-status').textContent = '❌ Location access denied';
+            }
+        );
+    } else {
+        document.getElementById('location-status').textContent = '❌ Geolocation not supported';
+    }
+}
+</script>
+{% endblock %}

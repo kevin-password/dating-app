@@ -1,0 +1,256 @@
+<!-- report_user.html - REPORT USER -->
+{% extends 'base.html' %}
+{% block title %}Report User - DatingApp{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-rose-100 via-pink-50 to-purple-100 py-8 px-4">
+    <div class="max-w-lg mx-auto space-y-6">
+        
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-orange-600 text-white shadow-lg shadow-red-500/30 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                </svg>
+            </div>
+            <h1 class="text-3xl font-extrabold text-gray-900">Report User</h1>
+            <p class="text-gray-500 mt-2">Help us keep the community safe</p>
+        </div>
+
+        <!-- User Being Reported Card -->
+        <div class="bg-white/80 backdrop-blur-xl border border-white/60 shadow-xl rounded-2xl p-6">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-white text-2xl font-bold shadow-md">
+                    {{ reported_user.profile.display_name|slice:":1"|upper }}
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Reporting</h2>
+                    <p class="text-lg text-gray-600 font-semibold">{{ reported_user.profile.display_name }}</p>
+                    {% if reported_user.profile.city %}
+                    <p class="text-sm text-gray-500 flex items-center gap-1 mt-0.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        {{ reported_user.profile.city }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Important Notice -->
+        <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4">
+            <div class="flex items-start gap-3">
+                <div class="flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-blue-800">Before you report</p>
+                    <ul class="text-xs text-blue-700 mt-2 space-y-1">
+                        <li>• Make sure this is a genuine violation of our community guidelines</li>
+                        <li>• False reports may affect your account standing</li>
+                        <li>• The user will be automatically blocked after reporting</li>
+                        <li>• All reports are reviewed by our safety team within 24 hours</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Form -->
+        <div class="bg-white/80 backdrop-blur-xl border border-white/60 shadow-xl rounded-2xl p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                Report Details
+            </h2>
+
+            <form method="POST" class="space-y-5">
+                {% csrf_token %}
+                
+                <!-- Reason for Report -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        🚩 Reason for Reporting
+                    </label>
+                    {{ form.reason }}
+                    {% if form.reason.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.reason.errors.0 }}</p>
+                    {% endif %}
+                    <p class="text-xs text-gray-500 mt-1">
+                        Select the most appropriate reason for this report
+                    </p>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        📝 Additional Details
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                    <p class="text-xs text-gray-500 mt-1">
+                        Provide specific details about what happened. Include dates, messages, or any other relevant information.
+                    </p>
+                </div>
+
+                <!-- Screenshot Option -->
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                    <div>
+                        <label class="text-sm font-semibold text-gray-700">📸 Can provide screenshots</label>
+                        <p class="text-xs text-gray-500">Our team may contact you for evidence</p>
+                    </div>
+                    {{ form.include_screenshot }}
+                </div>
+
+                <!-- Acknowledgment -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" required class="mt-0.5 rounded border-yellow-300 text-yellow-600 shadow-sm focus:border-yellow-300 focus:ring focus:ring-yellow-200 focus:ring-opacity-50">
+                        <span class="text-sm text-yellow-800">
+                            I confirm that:
+                            <ul class="list-disc list-inside mt-1 text-xs text-yellow-700 space-y-0.5">
+                                <li>This report is truthful and accurate</li>
+                                <li>I understand that false reports violate our terms</li>
+                                <li>I have read and agree to the community guidelines</li>
+                            </ul>
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" 
+                        class="w-full py-4 bg-gradient-to-r from-red-500 to-orange-600 text-white font-bold rounded-2xl shadow-lg shadow-red-500/30 hover:shadow-xl hover:from-red-600 hover:to-orange-700 transition-all duration-200 active:scale-95 flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                    </svg>
+                    Submit Report
+                </button>
+            </form>
+        </div>
+
+        <!-- What Happens Next -->
+        <div class="bg-white/80 backdrop-blur-xl border border-white/60 shadow-lg rounded-2xl p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                What Happens After You Report
+            </h3>
+            <div class="space-y-3">
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <span class="text-blue-600 text-sm font-bold">1</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-700">Immediate Action</p>
+                        <p class="text-xs text-gray-600">The user is automatically blocked and cannot contact you</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                        <span class="text-purple-600 text-sm font-bold">2</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-700">Review Process</p>
+                        <p class="text-xs text-gray-600">Our safety team reviews your report within 24 hours</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                        <span class="text-green-600 text-sm font-bold">3</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-700">Resolution</p>
+                        <p class="text-xs text-gray-600">Appropriate action is taken, which may include warnings, suspension, or permanent ban</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
+                        <span class="text-pink-600 text-sm font-bold">4</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-700">Follow-up</p>
+                        <p class="text-xs text-gray-600">You'll be notified of the outcome if you provided contact details</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alternative Actions -->
+        <div class="bg-white/80 backdrop-blur-xl border border-white/60 shadow-lg rounded-2xl p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-3">Other Actions You Can Take</h3>
+            <div class="space-y-2">
+                <a href="{% url 'block_user' reported_user.id %}" 
+                   class="flex items-center gap-3 p-3 bg-gray-50 hover:bg-red-50 rounded-xl transition-colors group">
+                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center group-hover:bg-red-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-gray-700 group-hover:text-red-700">Block User Only</p>
+                        <p class="text-xs text-gray-500">Prevent them from contacting you without reporting</p>
+                    </div>
+                </a>
+                
+                <a href="{% url 'safety_center' %}" 
+                   class="flex items-center gap-3 p-3 bg-gray-50 hover:bg-green-50 rounded-xl transition-colors group">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-gray-700 group-hover:text-green-700">Safety Center</p>
+                        <p class="text-xs text-gray-500">Access safety resources and tips</p>
+                    </div>
+                </a>
+                
+                <a href="{% url 'home' %}" 
+                   class="flex items-center gap-3 p-3 bg-gray-50 hover:bg-pink-50 rounded-xl transition-colors group">
+                    <div class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center group-hover:bg-pink-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-700 group-hover:text-pink-700">Back to Home</p>
+                                <p class="text-xs text-gray-500">Continue discovering new people</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Emergency Contact -->
+                <div class="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-2xl p-6 text-center">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 text-red-600 mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Immediate Danger?</h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                        If you're in immediate danger or need urgent help, please contact emergency services now.
+                    </p>
+                    <div class="grid grid-cols-2 gap-3 max-w-xs mx-auto">
+                        <div class="bg-white/80 rounded-xl p-3">
+                            <p class="text-xs text-gray-600">Emergency</p>
+                            <p class="text-xl font-black text-red-600">911</p>
+                        </div>
+                        <div class="bg-white/80 rounded-xl p-3">
+                            <p class="text-xs text-gray-600">Crisis Line</p>
+                            <p class="text-xl font-black text-red-600">988</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
+    </div>
+</div>
