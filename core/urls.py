@@ -68,6 +68,9 @@ urlpatterns = [
     
     # API: Get Matches
     path('api/matches/', views.api_matches_view, name='api_matches'),
+
+
+    path('api/heartbeat/', views.api_heartbeat_view, name='api_heartbeat'),
     
     # API: User Stats
     path('api/stats/', views.api_user_stats_view, name='api_stats'),
